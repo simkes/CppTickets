@@ -1,0 +1,32 @@
+name: Compilation
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  merge-all:
+    runs-on: ubuntu-latest
+    name: Merge It All!
+    steps:
+      - uses: actions/checkout@v2
+      - name: Concatenate all the tickets into all-tickets.md
+        run: |
+          > tickets/all-tickets.md
+          for ticket in tickets/ticket*.md ; do
+          echo -e "<details>\n<summary>" >> tickets/all-tickets.md
+          cat "$ticket" | sed -nr "1s/^##(.*)/\1/p" >> tickets/all-tickets.md
+          echo -e "</summary>\n" >> tickets/all-tickets.md
+          cat "$ticket" | sed '1d' >> tickets/all-tickets.md
+          echo -e "</details>\n" >> tickets/all-tickets.md
+      - name: Commit and Push
+        run: |
+          git config --global user.email "serega.haritontsev@gmail.com"
+          git config --global user.name "Github Actions"
+          git add tickets/all-tickets-lists.md
+          git commit -m "Automatically compile all the tickets together" || echo Nothing to commit
+          git push origin master || echo Nothing to push
