@@ -18,11 +18,12 @@ jobs:
         run: |
           > tickets/all-tickets.md
           for ticket in tickets/ticket*.md ; do
-          echo -e "<details>\n<summary>" >> tickets/all-tickets.md
-          cat "$ticket" | sed -nr "1s/^##(.*)/\1/p" >> tickets/all-tickets.md
-          echo -e "</summary>\n" >> tickets/all-tickets.md
-          cat "$ticket" | sed '1d' >> tickets/all-tickets.md
-          echo -e "</details>\n" >> tickets/all-tickets.md
+            echo -e "<details>\n<summary>" >> tickets/all-tickets.md
+            cat "$ticket" | sed -nr "1s/^##(.*)/\1/p" >> tickets/all-tickets.md
+            echo -e "</summary>\n" >> tickets/all-tickets.md
+            cat "$ticket" | sed '1d' >> tickets/all-tickets.md
+            echo -e "</details>\n" >> tickets/all-tickets.md
+          done
       - name: Commit and Push
         run: |
           git config --global user.email "serega.haritontsev@gmail.com"
