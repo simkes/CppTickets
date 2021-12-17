@@ -24,6 +24,10 @@ jobs:
             cat "$ticket" | sed '1d' >> tickets/all-tickets.md
             echo -e "</details>\n" >> tickets/all-tickets.md
           done
+      - name: Concatenate all the tickets into all-musthaves.md
+        run: |
+          > all-musthaves.md
+          cat musthaves/*.md >> all-musthaves.md
       - name: Commit and Push
         run: |
           git config --global user.email "serega.haritontsev@gmail.com"
