@@ -59,53 +59,6 @@
       std::cout << a.size(); // 3
   }
   ``` 
-  * ### Примеры: push_back, Person(string first_name) против Person(const string &first_name) (13-211208/02-move-objects/03-move-to-field).  
-  `push_back` с `c++11` поддерживает `move` семантику. Он добавляет копию объекта (или обеспечивает перемещение, если возможно). Если передать константную ссылку, проихойдёт копирование. Далее пример, когда объект мувается.  
-  ```C++
-  int main() {
-     std::vector<std::unique_ptr<int>> a;
-     std::unique_ptr<int> b = std::make_unique<int>(5);
-     a.push_back(std::move(b));
-     std::cout << *a.back().get();
-     assert(b.get() == nullptr);
-  }
-  ```
-  Дальше вставлен код с лекции. Нужно сравнить передачу по константной ссылке и по значению. Передача по константной ссылке использовалась в `c++03`, так как не было `move` семантики. С `c++11` оптимальнее использовать передачу по значению, так как теперь можно мувнуть практически за бесплатно то, что нам передали в аргумент. В комментариях написано, сколько и каких действий происходит. `init`, `copy`, `destruct`- дорогие операции. `move`, `copy`, `destruct of empty`- дешёвые операции. Единственный сценарий, когда мы не хотим передавать по значению, если объект очень большой, и мувать + удялять его очень дорого. Но такого лучше не допускать.  
-  В итоге получается, что передавать переменную выгоднее по констентной ссылке. Временный объект по значению. В третьем случае (где у нас функция возвращает строчку по значениб) так же выгоднее передавать по значению.  
-  ```C++
-  #include <string>
-  #include <utility>
-
-  struct PersonCpp03 {
-      std::string name;
-      PersonCpp03(const std::string &name_) : name(name_) {}  // 1 copy
-  };
-
-  struct PersonCpp11 {
-      std::string name;
-      PersonCpp11(std::string name_) : name(std::move(name_)) {}  // 1 initialization name_ + 1 move + 1 destruct of empty
-  };
-
-  std::string create_name() {
-      std::string s = "hello world";
-      return s;  // no std::move needed
-  }
-
-  int main() {
-      {
-          std::string x = "Egor";
-          [[maybe_unused]] PersonCpp03 p1(x);  // x is copied into p1.name: 1 copy
-          [[maybe_unused]] PersonCpp03 p2("Egor");  // temporary is copied: 1 init, 1 copy, 1 destruct
-          [[maybe_unused]] PersonCpp03 p3(create_name());  // temporary is copied: 1 init inside create_name(), 1 copy, 1 destruct
-      }
-      {
-          std::string x = "Egor";
-          [[maybe_unused]] PersonCpp11 p1(x);  // 1 copy + 1 move + 1 destruct of empty
-          [[maybe_unused]] PersonCpp11 p2("Egor");  // 1 init, 1-2 move, 1-2 destruct of empty
-          [[maybe_unused]] PersonCpp11 p3(create_name());  // 1 init inside create_name(), 1-3 move, 1-3 destruct of empty
-      }
-  }
-  ```
   * ### Передача `{}` в параметры.  
   Компилятор умная штука. Можно передавать что-то в фигурных скобках, он по контексту догадается, чем это должно быть. Например тут он преобразует это в вектор интов. Это так называемое `List-initialization`. (см. соответствующий билет)
   ```C++
