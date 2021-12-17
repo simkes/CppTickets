@@ -181,10 +181,12 @@ int main() {
 
 
 ```c++
-int main() {
-    const std::vector<int> &first = std::vectorP{0, 0, 0};
-    std::cout << first.size() << std::endl; // NO UB
-    const std::vector<int> &second = std::vectorP{0, 0, 0}; // would have been dangling if lifetime of second had been wider than lifetime of first;     
+
+const std::vector<int> &first = std::vectorP{0, 0, 0};
+std::cout << first.size() << std::endl; // NO UB
+ ....
+// maybe another scope
+const std::vector<int> &second = first; // would have been dangling if lifetime of second had been wider than lifetime of first;     
 }
 ```
 
@@ -198,7 +200,7 @@ int const& func(int const& x) {
 
 
 int main() {
-    const std::vector<int> &first = func(1);
+    const int &first = func(1);
     std::cout << first; // UB
 }
 ```
